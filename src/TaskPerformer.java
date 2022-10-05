@@ -32,7 +32,46 @@ public class TaskPerformer {
             nextDatesMap.put(new Date(item.getTime() + MILLIS_IN_A_DAY), datesMap.get(item));
         }
         // insert renewed values & insert Day of the week after them
+        TaskPerformer.InsertNewDates(datesMap, nextDatesMap);
+        OutputManager.PrintStingList("Результат роботи програми: ", inputText);
+    }
 
+    private static void InsertNewDates(Map<Date, SimpleDateFormat> datesMap, Map<Date, SimpleDateFormat> nextDatesMap) {
+        for (String line : inputText) {
+//            for(int iDatesMap = 0; iDatesMap < datesMap.size();) {
+//
+//            }
+            var it = nextDatesMap.entrySet().iterator();
+            for (var item: datesMap.keySet()) {
+                StringBuilder str = new StringBuilder();
+
+//                int i = TaskPerformer.GetCountOfSimilarDates(datesMap);
+                int pos = line.indexOf(datesMap.get(item).format(item));
+                if(pos != -1) {
+                    line = insertString(line, it.next().getKey().format(item), pos);
+                }
+            }
+        }
+    }
+
+    // Function to insert string
+    public static String insertString(
+            String originalString,
+            String stringToBeInserted,
+            int index)
+    {
+
+        // Create a new string
+        String newString = originalString.substring(0, index + 1)
+                + stringToBeInserted
+                + originalString.substring(index + 1);
+
+        // return the modified String
+        return newString;
+    }
+
+    private static int GetCountOfSimilarDates(Map<Date, SimpleDateFormat> datesMap) {
+        return -1;
     }
 
     private static void FindDatesRange(Map<Date, SimpleDateFormat> datesMap) {
