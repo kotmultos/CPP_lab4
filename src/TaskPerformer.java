@@ -26,52 +26,48 @@ public class TaskPerformer {
         // get the range of dates range = max - min
         TaskPerformer.FindDatesRange(datesMap);
 
-        // change each date to the next day
-        Map<Date, SimpleDateFormat> nextDatesMap = new LinkedHashMap<>();
-        for (var item : datesMap.keySet()) {
-            nextDatesMap.put(new Date(item.getTime() + MILLIS_IN_A_DAY), datesMap.get(item));
-        }
         // insert renewed values & insert Day of the week after them
-        TaskPerformer.InsertNewDates(datesMap, nextDatesMap);
+        TaskPerformer.InsertNewDates(datesMap);
         OutputManager.PrintStingList("Результат роботи програми: ", inputText);
     }
 
-    private static void InsertNewDates(Map<Date, SimpleDateFormat> datesMap, Map<Date, SimpleDateFormat> nextDatesMap) {
-        for (String line : inputText) {
-//            for(int iDatesMap = 0; iDatesMap < datesMap.size();) {
-//
-//            }
-            var it = nextDatesMap.entrySet().iterator();
+    private static void InsertNewDates(Map<Date, SimpleDateFormat> datesMap) {
+        for(int i = 0; i < inputText.size(); i++) {
             for (var item: datesMap.keySet()) {
-                StringBuilder str = new StringBuilder();
+                int pos = inputText.get(i).indexOf(datesMap.get(item).format(item)) ;
 
-//                int i = TaskPerformer.GetCountOfSimilarDates(datesMap);
-                int pos = line.indexOf(datesMap.get(item).format(item));
                 if(pos != -1) {
-                    line = insertString(line, it.next().getKey().format(item), pos);
+                    String strToInsert = TaskPerformer.GetStringToInsert(datesMap.get(item).format(item), datesMap);
+//                    System.out.println(strToInsert);
+//                    String newLine = insertString(inputText.get(i), strToInsert, pos);
+                    StringBuilder tmp = new StringBuilder(inputText.get(i));
+                    StringBuilder newLine = tmp.replace(pos, pos + datesMap.get(item).format(item).length(), strToInsert);
+
+//                    System.out.println(newLine );
+                    inputText.set(i, newLine.toString());
                 }
+//                break;
             }
+//            break;
         }
     }
 
-    // Function to insert string
-    public static String insertString(
-            String originalString,
-            String stringToBeInserted,
-            int index)
-    {
+    private static String GetStringToInsert(String template, Map<Date, SimpleDateFormat> datesMap) {
+        StringBuilder res = new StringBuilder();
 
-        // Create a new string
-        String newString = originalString.substring(0, index + 1)
-                + stringToBeInserted
-                + originalString.substring(index + 1);
-
-        // return the modified String
-        return newString;
-    }
-
-    private static int GetCountOfSimilarDates(Map<Date, SimpleDateFormat> datesMap) {
-        return -1;
+        for (var item : datesMap.keySet()) {
+//            System.out.println("current elem:" + datesMap.get(item).format(item));
+//            System.out.println("template: " + template);
+            if(datesMap.get(item).format(item).equals(template)) {  // if equal
+                Date nextDay = new Date(item.getTime() + MILLIS_IN_A_DAY); // change date to the next day
+                res.append(datesMap.get(item).format(nextDay)); // format next day with the same format
+                res.append(" day: ");
+                res.append(nextDay.getDay());
+                res.append(" ");
+//                System.out.println("true");
+            }
+        }
+        return res.toString();
     }
 
     private static void FindDatesRange(Map<Date, SimpleDateFormat> datesMap) {
