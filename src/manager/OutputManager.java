@@ -1,5 +1,7 @@
 package manager;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -14,6 +16,19 @@ public class OutputManager {
             System.out.println(line);
         }
         System.out.println("--");
+    }
+    public static void SaveStringListToFile(String filename, List<String> text) {
+        try {
+            FileWriter myWriter = new FileWriter(filename);
+            for (var line : text) {
+                myWriter.write(line + "\n");
+            }
+            myWriter.close();
+            System.out.println("Successfully wrote to the file " + filename);
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
     public static void PrintDatesMap(String description, Map<Date, SimpleDateFormat> datesMap) {
