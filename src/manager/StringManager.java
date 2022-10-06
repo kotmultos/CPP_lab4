@@ -5,19 +5,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class StringManager {
     private static final String [] dateFormats = {"MM/dd/yyyy",
             "MM-dd-yyyy", "MM.dd.yyyy", "dd/MM/yyyy", "dd-MM-yyyy", "dd.MM.yyyy"};
 
-    public static void ConvertStringToDateAndFormat(Map<Date, SimpleDateFormat> resMap, String word) {
+    public static void ConvertStringToDateAndFormat(List<DateAndFormat> resList, String word) {
         for (var item : dateFormats) {
             SimpleDateFormat format = new SimpleDateFormat(item);
             try {
                 Date date = format.parse(word);
                 if( word.equals(format.format(date))) {
-                    resMap.put(date, format);
+                    resList.add(new DateAndFormat(date, format));
                 }
             }
             catch (ParseException e) {

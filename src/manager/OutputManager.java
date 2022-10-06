@@ -2,10 +2,8 @@ package manager;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class OutputManager {
 
@@ -31,11 +29,11 @@ public class OutputManager {
         }
     }
 
-    public static void PrintDatesMap(String description, Map<Date, SimpleDateFormat> datesMap) {
+    public static void PrintDatesList(String description, List<DateAndFormat> datesList) {
         System.out.println(description);
-        for (var date: datesMap.keySet()) {
-            System.out.print(datesMap.get(date).format(date));
-            System.out.println("\t" + date);
+        for (var date: datesList) {
+            System.out.print(date.dateFormat.format(date.date));
+            System.out.println("\t" + date.date);
         }
     }
 

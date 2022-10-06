@@ -1,7 +1,7 @@
 public class Main {
     public static void main(String[] args) {
-        TaskPerformer.Perform("textEnglish.txt");
-//        TaskPerformer.Perform("textUkrainian.txt");
+//        TaskPerformer.Perform("textEnglish.txt");
+        TaskPerformer.Perform("textUkrainian.txt");
     }
 }
 

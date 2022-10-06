@@ -1,8 +1,8 @@
+import manager.DateAndFormat;
 import manager.InputManager;
 import manager.OutputManager;
 import manager.StringManager;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class TaskPerformer {
@@ -22,27 +22,43 @@ public class TaskPerformer {
 
         // find date in any possible format & remember its position [line, indexInLine];
         // split line by spaces and brackets  and check whether each word is a Date
-        Map<Date, SimpleDateFormat> datesMap = TaskPerformer.GetDatesMap();
-        OutputManager.PrintDatesMap("Знайдено такі дати у файлі: ", datesMap);
+        List<DateAndFormat> datesList = TaskPerformer.GetDatesList();
+        OutputManager.PrintDatesList("Знайдено такі дати у файлі: ", datesList);
 
         // get the range of dates range = max - min
-        TaskPerformer.FindDatesRange(datesMap);
+        TaskPerformer.FindDatesRange(datesList);
 
         // insert renewed values & insert Day of the week after them
-        TaskPerformer.InsertNewDates(datesMap);
+        TaskPerformer.InsertNewDates(datesList);
         OutputManager.PrintStingList("Результат роботи програми: ", inputText);
         OutputManager.SaveStringListToFile("result.txt", inputText);
     }
 
-    private static void InsertNewDates(Map<Date, SimpleDateFormat> datesMap) {
+    private static List<DateAndFormat> GetDatesList() {
+        List<DateAndFormat> resList = new ArrayList<>();
+        for (var line: inputText) {
+            String lineWithoutExtraSpaces = StringManager.RemoveSpaces(line);
+            List<String> words = StringManager.SplitLine(lineWithoutExtraSpaces);
+
+            for (var word: words) {
+                // check is each word is a date
+                if(StringManager.IsWordADate(word)) { //  current word is a date
+                    StringManager.ConvertStringToDateAndFormat(resList, word);
+                }
+            }
+        }
+        return resList;
+    }
+
+    private static void InsertNewDates(List<DateAndFormat> datesList) {
         for(int i = 0; i < inputText.size(); i++) {
-            for (var item: datesMap.keySet()) {
-                int pos = inputText.get(i).indexOf(datesMap.get(item).format(item)) ;
+            for (var item: datesList) {
+                int pos = inputText.get(i).indexOf(item.dateFormat.format(item.date)) ;
 
                 if(pos != -1) {
-                    String strToInsert = TaskPerformer.GetStringToInsert(datesMap.get(item).format(item), datesMap);
+                    String strToInsert = TaskPerformer.GetStringToInsert(item.dateFormat.format(item.date), datesList);
                     StringBuilder tmp = new StringBuilder(inputText.get(i));
-                    StringBuilder newLine = tmp.replace(pos, pos + datesMap.get(item).format(item).length(), strToInsert);
+                    StringBuilder newLine = tmp.replace(pos, pos + item.dateFormat.format(item.date).length(), strToInsert);
 
                     inputText.set(i, newLine.toString());
                 }
@@ -50,23 +66,26 @@ public class TaskPerformer {
         }
     }
 
-    private static String GetStringToInsert(String template, Map<Date, SimpleDateFormat> datesMap) {
+    private static String GetStringToInsert(String template, List<DateAndFormat> datesList) {
         StringBuilder res = new StringBuilder();
 
-        for (var item : datesMap.keySet()) {
-            if(datesMap.get(item).format(item).equals(template)) {  // if equal
-                Date nextDay = new Date(item.getTime() + MILLIS_IN_A_DAY); // change date to the next day
-                res.append(datesMap.get(item).format(nextDay)); // format next day with the same format
-                res.append(" : ");
+        for (var item : datesList) {
+            if(item.dateFormat.format(item.date).equals(template)) {  // if equal
+                Date nextDay = new Date(item.date.getTime() + MILLIS_IN_A_DAY); // change date to the next day
+                res.append(item.dateFormat.format(nextDay)); // format next day with the same format
+                res.append(" (");
                 res.append(weekDays[nextDay.getDay()]);
-                res.append(" ");
+                res.append(") ");
             }
         }
         return res.toString();
     }
 
-    private static void FindDatesRange(Map<Date, SimpleDateFormat> datesMap) {
-        Set<Date> dateSet = new HashSet<>(datesMap.keySet());
+    private static void FindDatesRange(List<DateAndFormat> list) {
+        Set<Date> dateSet = new HashSet<>();
+        for (int i = 0; i < list.size(); i++) {
+            dateSet.add(list.get(i).date);
+        }
 
         Date last = dateSet.iterator().next();
         Date first = last;
@@ -86,21 +105,5 @@ public class TaskPerformer {
                 = (difference_In_Time / (1000 * 60 * 60 * 24)) % 365;
 
         OutputManager.PrintDatesRange(first, last, difference_In_Years, difference_In_Days);
-    }
-
-    private static Map<Date, SimpleDateFormat> GetDatesMap() {
-        Map<Date, SimpleDateFormat> resMap = new LinkedHashMap<>();
-        for (var line: inputText) {
-            String lineWithoutExtraSpaces = StringManager.RemoveSpaces(line);
-            List<String> words = StringManager.SplitLine(lineWithoutExtraSpaces);
-
-            for (var word: words) {
-                // check is each word is a date
-                if(StringManager.IsWordADate(word)) { //  current word is a date
-                    StringManager.ConvertStringToDateAndFormat(resMap, word);
-                }
-            }
-        }
-        return resMap;
     }
 }
